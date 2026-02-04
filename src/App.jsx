@@ -65,6 +65,9 @@ export default function App() {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
   // useEffect(() => {
   //   const fetchInitial = async () => {
   //     try {
@@ -152,7 +155,10 @@ export default function App() {
         </Box>
         <Box>
           {selectedId ? (
-            <MovieDetails selectedId={selectedId} />
+            <MovieDetails
+              selectedId={selectedId}
+              handleCloseMovie={handleCloseMovie}
+            />
           ) : (
             <>
               <WatchedSummary watched={watched} />
@@ -255,7 +261,7 @@ function WatchedBox() {
   */
 function MovieList({ movies, onSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
       ))}
@@ -283,8 +289,15 @@ function Movie({ movie: { Poster, Title, Year, imdbID }, onSelectMovie }) {
   );
 }
 
-function MovieDetails({ selectedId }) {
-  return <div className="details">{selectedId}</div>;
+function MovieDetails({ selectedId, handleCloseMovie }) {
+  return (
+    <div className="details">
+      {selectedId}
+      <button onClick={handleCloseMovie} className="btn-back">
+        &larr;
+      </button>
+    </div>
+  );
 }
 
 function WatchedSummary({ watched }) {
