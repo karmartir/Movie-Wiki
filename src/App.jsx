@@ -50,18 +50,7 @@ import "./index.css";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
-//checking valid image url
-function hasValidPoster(url) {
-  return new Promise((resolve) => {
-    if (!url || url === "N/A") return resolve(false);
 
-    const img = new Image();
-    img.src = url;
-
-    img.onload = () => resolve(img.naturalWidth > 0);
-    img.onerror = () => resolve(false);
-  });
-}
 const KEY = "e0b9314";
 // const tempQuery = "interstellar";
 export default function App() {
@@ -111,14 +100,8 @@ export default function App() {
             setIsLoading(false);
             return;
           }
-          const moviesWithValidPosters = await Promise.all(
-            data.Search.map(async (movie) => {
-              const isValid = await hasValidPoster(movie.Poster);
-              return isValid ? movie : null;
-            }),
-          );
-
-          setMovies(moviesWithValidPosters.filter(Boolean));
+          setMovies(data.Search);
+          // console.log(data.Search);
           setIsLoading(false);
         } catch (err) {
           setError(err.message);
@@ -283,10 +266,12 @@ function Movie({ movie: { Poster, Title, Year, imdbID }, onSelectMovie }) {
   const handleClick = () => {
     onSelectMovie(imdbID);
   };
-
+  function handleImageError(e) {
+    e.currentTarget.closest("li").style.display = "none";
+  }
   return (
     <li onClick={handleClick}>
-      <img src={Poster} alt={`${Title} poster`} />
+      <img src={Poster} alt={`${Title} poster`} onError={handleImageError} />
       <h3>{Title}</h3>
       <div>
         <p>
