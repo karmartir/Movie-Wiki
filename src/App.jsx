@@ -61,9 +61,13 @@ export default function App() {
   const [error, setError] = useState(null);
   const [query, setQuery] = useState(tempQuery); // default for initial fetch
   const [selectedId, setSelectedId] = useState(null);
+  const [brokenPosters, setBrokenPosters] = useState(new Set());
 
   const visibleMovies = movies.filter(
-    (movie) => movie.Poster && movie.Poster !== "N/A",
+    (movie) =>
+      movie.Poster &&
+      movie.Poster !== "N/A" &&
+      !brokenPosters.has(movie.imdbID),
   );
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -80,42 +84,46 @@ export default function App() {
   }
   useEffect(
     function () {
+      const controller = new AbortController();
       async function fetchMovies() {
         try {
           setIsLoading(true);
-          setError(null);
+          setError("");
 
           const res = await fetch(
             `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal },
           );
+          if (!res.ok)
+            throw new Error("Something went wrong with fetching movies");
 
           const data = await res.json();
-
-          if (data.Response === "False") {
-            setMovies([]);
-            setError("Movie not found");
-            return;
-          }
+          if (data.Response === "False") throw new Error("Movie not found");
 
           setMovies(data.Search);
+          setError("");
         } catch (err) {
-          setError(err.message);
+          console.log(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
       }
 
       if (query.length < 3) {
-        setMovies([]); // ✅ clear results
-        setError(null);
+        setMovies([]);
+        setError("");
         return;
       }
 
       fetchMovies();
+
+      return () => controller.abort();
     },
     [query],
   );
-
   return (
     <>
       <NavBar>
@@ -131,6 +139,9 @@ export default function App() {
             <MovieList
               movies={visibleMovies}
               onSelectMovie={handleSelectMovie}
+              onPosterError={(id) =>
+                setBrokenPosters((prev) => new Set(prev).add(id))
+              }
             />
           )}
         </Box>
@@ -223,26 +234,35 @@ function Box({ children }) {
   );
 }
 
-function MovieList({ movies, onSelectMovie }) {
+function MovieList({ movies, onSelectMovie, onPosterError }) {
   return (
     <ul className="list list-movies">
       {movies?.map((movie) => (
-        <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
+        <Movie
+          movie={movie}
+          key={movie.imdbID}
+          onSelectMovie={onSelectMovie}
+          onPosterError={onPosterError}
+        />
       ))}
     </ul>
   );
 }
-function Movie({ movie: { Poster, Title, Year, imdbID }, onSelectMovie }) {
+function Movie({
+  movie: { Poster, Title, Year, imdbID },
+  onSelectMovie,
+  onPosterError,
+}) {
   const handleClick = () => {
     onSelectMovie(imdbID);
   };
-  function handleImageError(e) {
-    onSelectMovie(null);
-    e.currentTarget.closest("li")?.remove();
-  }
   return (
     <li onClick={handleClick}>
-      <img src={Poster} alt={`${Title} poster`} onError={handleImageError} />
+      <img
+        src={Poster}
+        alt={`${Title} poster`}
+        onError={() => onPosterError(imdbID)}
+      />
       <h3>{Title}</h3>
       <div>
         <p>
