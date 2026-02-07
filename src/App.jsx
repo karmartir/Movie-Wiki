@@ -179,7 +179,7 @@ function Logo() {
   return (
     <div className="logo">
       <span role="img">🍿</span>
-      <h1>usePopcorn</h1>
+      <h1>Movie Wiki</h1>
     </div>
   );
 }
@@ -299,6 +299,13 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+  useEffect(() => {
+    if (!title) return;
+    document.title = `Movie Wiki | ${title}`;
+    return function () {
+      document.title = "Movie Wiki";
+    };
+  }, [title]);
   return (
     <div className="details">
       {isLoading ? (
