@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.css";
 import StarRating from "./StarRating";
 
@@ -53,13 +53,13 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "e0b9314";
-const tempQuery = "interstellar";
+// const tempQuery = "interstellar";
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState(tempQuery); // default for initial fetch
+  const [query, setQuery] = useState(""); // default for initial fetch
   const [selectedId, setSelectedId] = useState(null);
   const [brokenPosters, setBrokenPosters] = useState(new Set());
 
@@ -103,8 +103,8 @@ export default function App() {
           setMovies(data.Search);
           setError("");
         } catch (err) {
-          console.log(err.message);
           if (err.name !== "AbortError") {
+            console.log(err.message);
             setError(err.message);
           }
         } finally {
@@ -117,16 +117,17 @@ export default function App() {
         setError("");
         return;
       }
-
+      handleCloseMovie();
       fetchMovies();
 
       return () => controller.abort();
     },
     [query],
   );
+
   return (
     <>
-      <NavBar>
+      <NavBar className="nav-bar">
         <Search query={query} setQuery={setQuery} />
         <NumResults movies={visibleMovies} />
       </NavBar>
@@ -189,7 +190,7 @@ function NavBar({ children }) {
 function Logo() {
   return (
     <div className="logo">
-      <span role="img">🍿</span>
+      <span role="img">🎦</span>
       <h1>Movie Wiki</h1>
     </div>
   );
@@ -319,11 +320,29 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+          // console.log("closing 1");
+        }
+      }
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie],
+  );
+
   useEffect(() => {
     if (!title) return;
     document.title = `Movie Wiki | ${title}`;
     return function () {
       document.title = "Movie Wiki";
+      //console.log("Clean up 2");
     };
   }, [title]);
   return (
