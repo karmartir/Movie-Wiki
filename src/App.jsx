@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./index.css";
 import StarRating from "./StarRating";
 
@@ -214,20 +214,32 @@ function NumResults({ movies }) {
   );
 }
 function Search({ query, setQuery }) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // if (query.trim()) onSearch(query.trim());
-  };
+  const inputEl = useRef(null);
+  useEffect(() => {
+    // console.log(inputEl.current);
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === "Enter") {
+        inputEl.current.focus();
+        setQuery("");
+      }
+    }
+    document.addEventListener("keydown", callback);
+    return () => document.removeEventListener("keydown", callback);
+  }, [setQuery]);
+  // useEffect(() => {
+  //   const el = document.querySelector(".search");
+  //   el.focus();
+  // }, []);
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        className="search"
-        type="text"
-        placeholder="Search movies..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-    </form>
+    <input
+      className="search"
+      type="text"
+      placeholder="Search movies..."
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
+    />
   );
 }
 function Main({ children }) {
