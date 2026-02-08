@@ -56,13 +56,16 @@ const KEY = "e0b9314";
 // const tempQuery = "interstellar";
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
+  // const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState(""); // default for initial fetch
   const [selectedId, setSelectedId] = useState(null);
   const [brokenPosters, setBrokenPosters] = useState(new Set());
-
+  const [watched, setWatched] = useState(() => {
+    const stored = localStorage.getItem("watched");
+    return stored ? JSON.parse(stored) : [];
+  });
   const visibleMovies = movies.filter(
     (movie) =>
       movie.Poster &&
@@ -78,10 +81,18 @@ export default function App() {
   }
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
+    setQuery("");
   }
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched],
+  );
   useEffect(
     function () {
       const controller = new AbortController();
