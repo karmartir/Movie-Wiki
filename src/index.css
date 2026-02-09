@@ -34,7 +34,6 @@ body {
 
 .nav-bar {
   display: grid;
-  max-width: 80%;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   height: 7.2rem;
