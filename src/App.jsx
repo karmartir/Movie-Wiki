@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./index.css";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 // const tempMovieData = [
 //   {
@@ -60,12 +61,11 @@ export default function App() {
   const [query, setQuery] = useState(""); // default for initial fetch
   const [selectedId, setSelectedId] = useState(null);
   const [brokenPosters, setBrokenPosters] = useState(new Set());
-  //custom hook:
+  //custom useMovies hook:
   const { movies, isLoading, error } = useMovies(query);
-  const [watched, setWatched] = useState(() => {
-    const stored = localStorage.getItem("watched");
-    return stored ? JSON.parse(stored) : [];
-  });
+  //useLocalStorageState custom hook
+  const [watched, setWatched] = useLocalStorageState([], "watched");
+
   const visibleMovies = movies.filter(
     (movie) =>
       movie.Poster &&
@@ -87,12 +87,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched],
-  );
 
   return (
     <>
