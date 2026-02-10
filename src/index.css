@@ -33,16 +33,16 @@ body {
 /* ******* */
 
 .nav-bar {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center; /* vertical center */
+  gap: 2.4rem; /* spacing between children */
   height: 7.2rem;
   padding: 0 3.2rem;
   background-color: var(--color-primary);
   border-radius: 0.9rem;
   margin: auto;
 }
-
 .main {
   margin-top: 2.4rem;
   height: calc(100vh - 7.2rem - 3 * 2.4rem);
@@ -79,7 +79,7 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 2rem;
 }
 
 .logo span {
@@ -117,8 +117,12 @@ body {
 }
 
 .num-results {
-  justify-self: end;
   font-size: 1.8rem;
+}
+.navbar-div {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
 }
 
 .btn-toggle {
