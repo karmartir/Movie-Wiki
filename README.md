@@ -26,6 +26,20 @@ Movie Wiki is a simple React app for discovering movies and managing your person
    ```
 3. Open your browser and go to [http://localhost:5173](http://localhost:5173).
 
+### Environment Variables
+
+To use the OMDb API, you need to create a `.env` file in the root of the project containing your API key. You can start by copying the provided `.env.example` file:
+
+```
+cp .env.example .env
+```
+
+Then, replace `your_api_key_here` in the `.env` file with your own OMDb API key. The `.env.example` file contains the following:
+
+```
+VITE_API_KEY=your_api_key_here
+```
+
 ## How it Works
 
 1. **Search for Movies:** Type a movie name into the search bar. Results are fetched from the OMDb API.
